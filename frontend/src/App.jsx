@@ -1,122 +1,91 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
+import { useMemo, useState } from 'react'
 import './App.css'
+import { videos, categories } from './data/videos'
+import Navbar from './components/Navbar'
+import CategoryRow from './components/CategoryRow'
+import VideoCard from './components/VideoCard'
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const [query, setQuery] = useState('')
+  const [category, setCategory] = useState('All')
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase()
+    return videos.filter((v) => {
+      const matchesCategory = category === 'All' || v.category === category
+      const matchesQuery =
+        q === '' ||
+        v.title.toLowerCase().includes(q) ||
+        v.description.toLowerCase().includes(q)
+      return matchesCategory && matchesQuery
+    })
+  }, [query, category])
+
+  const isFiltering = query.trim() !== '' || category !== 'All'
+  const featured = videos[0]
 
   return (
     <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+      <Navbar query={query} onQueryChange={setQuery} />
 
-      <div className="ticks"></div>
+      <main>
+        {!isFiltering && (
+          <section
+            className="hero"
+            style={{ background: `linear-gradient(120deg, ${featured.colors[0]}, #0b0b0f 75%)` }}
+          >
+            <div className="hero-content">
+              <p className="eyebrow">Featured</p>
+              <h1>{featured.title}</h1>
+              <p className="hero-desc">{featured.description}</p>
+              <div className="hero-actions">
+                <button type="button" className="btn-primary">▶ Play</button>
+                <button type="button" className="btn-secondary">More info</button>
+              </div>
+            </div>
+          </section>
+        )}
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
+        <div className="chips" role="group" aria-label="Filter by category">
+          {categories.map((c) => (
+            <button
+              key={c}
+              type="button"
+              className={c === category ? 'chip active' : 'chip'}
+              onClick={() => setCategory(c)}
+            >
+              {c}
+            </button>
+          ))}
         </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
+        {isFiltering ? (
+          <section className="results">
+            <h2>{filtered.length} result{filtered.length === 1 ? '' : 's'}</h2>
+            {filtered.length === 0 ? (
+              <p className="empty">No videos match your search.</p>
+            ) : (
+              <div className="grid">
+                {filtered.map((v) => (
+                  <VideoCard key={v.id} video={v} />
+                ))}
+              </div>
+            )}
+          </section>
+        ) : (
+          categories
+            .filter((c) => c !== 'All')
+            .map((c) => (
+              <CategoryRow
+                key={c}
+                title={c}
+                videos={videos.filter((v) => v.category === c)}
+              />
+            ))
+        )}
+      </main>
+
+      <footer className="footer">© StreamSphere demo project. All content is original sample data.</footer>
     </>
   )
 }
-
-export default App
