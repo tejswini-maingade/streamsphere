@@ -1,11 +1,18 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { videos, categories } from '../data/videos'
+import { getVideos } from '../api'
+import { gradientFor } from '../utils'
+import { useAsync } from '../hooks/useAsync'
 import CategoryRow from '../components/CategoryRow'
 import VideoCard from '../components/VideoCard'
+import { ErrorBox, Loading } from '../components/Status'
 
 export default function Home({ query }) {
   const [category, setCategory] = useState('All')
+  const { status, data, retry } = useAsync((signal) => getVideos({ limit: 50 }, signal), [])
+
+  const videos = useMemo(() => data?.items ?? [], [data])
+  const categories = useMemo(() => ['All', ...new Set(videos.map((v) => v.category))], [videos])
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -17,7 +24,13 @@ export default function Home({ query }) {
         v.description.toLowerCase().includes(q)
       return matchesCategory && matchesQuery
     })
-  }, [query, category])
+  }, [videos, query, category])
+
+  if (status === 'loading') return <Loading label="Loading videos" />
+  if (status === 'error') {
+    return <ErrorBox message="We could not load videos. Please try again." onRetry={retry} />
+  }
+  if (videos.length === 0) return <p className="status">No videos have been published yet.</p>
 
   const isFiltering = query.trim() !== '' || category !== 'All'
   const featured = videos[0]
@@ -27,7 +40,7 @@ export default function Home({ query }) {
       {!isFiltering && (
         <section
           className="hero"
-          style={{ background: `linear-gradient(120deg, ${featured.colors[0]}, #0b0b0f 75%)` }}
+          style={{ background: `linear-gradient(120deg, ${gradientFor(featured)[0]}, #0b0b0f 75%)` }}
         >
           <div className="hero-content">
             <p className="eyebrow">Featured</p>

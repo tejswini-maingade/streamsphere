@@ -102,3 +102,8 @@
 @media (max-width: 720px) {
   .row-scroll .card-link { flex-basis: 200px; }
 }
+/* Loading and error states */
+.status { padding: 40px 4vw; color: var(--muted); }
+.error-box { display: grid; gap: 14px; justify-items: start; }
+.error-box p { margin: 0; color: var(--text); }
+.error-box .btn-primary { border: 0; }

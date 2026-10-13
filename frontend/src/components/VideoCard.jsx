@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom'
+import { formatDuration, gradientFor } from '../utils'
 
 export default function VideoCard({ video }) {
-  const [c1, c2] = video.colors
+  const [c1, c2] = gradientFor(video)
   return (
     <Link to={`/videos/${video.id}`} className="card-link">
       <article className="card">
@@ -11,12 +12,12 @@ export default function VideoCard({ video }) {
           role="img"
           aria-label={`Thumbnail for ${video.title}`}
         >
-          <span className="duration">{video.duration}</span>
+          <span className="duration">{formatDuration(video.durationSeconds)}</span>
           <span className="play" aria-hidden="true">▶</span>
         </div>
         <div className="card-body">
           <h3>{video.title}</h3>
-          <p className="meta">{video.creator} · {video.category}</p>
+          <p className="meta">{video.creator.displayName} · {video.category}</p>
         </div>
       </article>
     </Link>

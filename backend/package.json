@@ -3,17 +3,29 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "scripts": {
+    "scripts": {
     "dev": "node --watch --env-file-if-exists=../.env src/server.js",
     "start": "node src/server.js",
-    "test": "node --test"
+    "test": "node --test",
+    "db:generate": "node --env-file=../.env node_modules/prisma/build/index.js generate",
+    "db:migrate": "node --env-file=../.env node_modules/prisma/build/index.js migrate dev",
+    "db:studio": "node --env-file=../.env node_modules/prisma/build/index.js studio"
   },
   "engines": {
     "node": ">=22"
   },
   "dependencies": {
+    "@prisma/client": "^6.19.3",
     "cors": "^2.8.6",
     "express": "^5.3.0",
     "helmet": "^8.3.0"
+  },
+  "devDependencies": {
+    "prisma": "^6.19.3"
+  },
+  "allowScripts": {
+    "@prisma/client@6.19.3": true,
+    "@prisma/engines@6.19.3": true,
+    "prisma@6.19.3": true
   }
 }
