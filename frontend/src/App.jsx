@@ -1,90 +1,31 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
+import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import './App.css'
-import { videos, categories } from './data/videos'
 import Navbar from './components/Navbar'
-import CategoryRow from './components/CategoryRow'
-import VideoCard from './components/VideoCard'
+import Home from './pages/Home'
+import VideoDetails from './pages/VideoDetails'
 
 export default function App() {
   const [query, setQuery] = useState('')
-  const [category, setCategory] = useState('All')
+  const navigate = useNavigate()
+  const { pathname } = useLocation()
 
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase()
-    return videos.filter((v) => {
-      const matchesCategory = category === 'All' || v.category === category
-      const matchesQuery =
-        q === '' ||
-        v.title.toLowerCase().includes(q) ||
-        v.description.toLowerCase().includes(q)
-      return matchesCategory && matchesQuery
-    })
-  }, [query, category])
-
-  const isFiltering = query.trim() !== '' || category !== 'All'
-  const featured = videos[0]
+  // Typing in the search box from another page takes you back to the results.
+  function handleQueryChange(value) {
+    setQuery(value)
+    if (pathname !== '/') navigate('/')
+  }
 
   return (
     <>
-      <Navbar query={query} onQueryChange={setQuery} />
-
+      <Navbar query={query} onQueryChange={handleQueryChange} />
       <main>
-        {!isFiltering && (
-          <section
-            className="hero"
-            style={{ background: `linear-gradient(120deg, ${featured.colors[0]}, #0b0b0f 75%)` }}
-          >
-            <div className="hero-content">
-              <p className="eyebrow">Featured</p>
-              <h1>{featured.title}</h1>
-              <p className="hero-desc">{featured.description}</p>
-              <div className="hero-actions">
-                <button type="button" className="btn-primary">▶ Play</button>
-                <button type="button" className="btn-secondary">More info</button>
-              </div>
-            </div>
-          </section>
-        )}
-
-        <div className="chips" role="group" aria-label="Filter by category">
-          {categories.map((c) => (
-            <button
-              key={c}
-              type="button"
-              className={c === category ? 'chip active' : 'chip'}
-              onClick={() => setCategory(c)}
-            >
-              {c}
-            </button>
-          ))}
-        </div>
-
-        {isFiltering ? (
-          <section className="results">
-            <h2>{filtered.length} result{filtered.length === 1 ? '' : 's'}</h2>
-            {filtered.length === 0 ? (
-              <p className="empty">No videos match your search.</p>
-            ) : (
-              <div className="grid">
-                {filtered.map((v) => (
-                  <VideoCard key={v.id} video={v} />
-                ))}
-              </div>
-            )}
-          </section>
-        ) : (
-          categories
-            .filter((c) => c !== 'All')
-            .map((c) => (
-              <CategoryRow
-                key={c}
-                title={c}
-                videos={videos.filter((v) => v.category === c)}
-              />
-            ))
-        )}
+        <Routes>
+          <Route path="/" element={<Home query={query} />} />
+          <Route path="/videos/:id" element={<VideoDetails />} />
+          <Route path="*" element={<VideoDetails />} />
+        </Routes>
       </main>
-
       <footer className="footer">© StreamSphere demo project. All content is original sample data.</footer>
     </>
   )

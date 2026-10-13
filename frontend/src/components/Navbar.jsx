@@ -1,14 +1,16 @@
+import { Link, NavLink } from 'react-router-dom'
+
 export default function Navbar({ query, onQueryChange }) {
   return (
     <header className="navbar">
-      <a className="brand" href="/" aria-label="StreamSphere home">
+      <Link className="brand" to="/" aria-label="StreamSphere home">
         Stream<span>Sphere</span>
-      </a>
+      </Link>
 
       <nav className="nav-links" aria-label="Main">
-        <a href="/" className="active">Home</a>
-        <a href="/">My List</a>
-        <a href="/">Creator Studio</a>
+        <NavLink to="/" end>Home</NavLink>
+        <span className="soon">My List</span>
+        <span className="soon">Creator Studio</span>
       </nav>
 
       <div className="nav-right">
