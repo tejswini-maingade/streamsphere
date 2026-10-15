@@ -11,7 +11,7 @@ export default function Home({ query }) {
   const [category, setCategory] = useState('All')
   const { status, data, retry } = useAsync((signal) => getVideos({ limit: 50 }, signal), [])
 
-  const videos = useMemo(() => data?.items ?? [], [data])
+  const videos = useMemo(() => data?.videos ?? [], [data])
   const categories = useMemo(() => ['All', ...new Set(videos.map((v) => v.category))], [videos])
 
   const filtered = useMemo(() => {

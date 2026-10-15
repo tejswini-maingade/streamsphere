@@ -1,3 +1,4 @@
+import videoRoutes from './routes/videos.js'
 import express from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
@@ -18,7 +19,8 @@ export function createApp() {
   app.get('/ready', (req, res) => {
     res.json({ status: 'ready' })
   })
-
+  app.use('/api/videos', videoRoutes)
+  
   app.use((req, res) => {
     res.status(404).json({ error: 'Not found' })
   })
